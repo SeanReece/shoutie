@@ -1,0 +1,19 @@
+<ion-view view-title="Shoutie">
+  <ion-content has-bouncing="false">
+      <swipe-cards>
+        <swipe-card on-card-swipe="cardSwiped()" class="start-card">
+          Swipe down for a new Shout
+        </swipe-card>
+        <swipe-card class="start-card">
+          Welcome
+        </swipe-card>
+        <swipe-card ng-repeat="card in cards" on-destroy="cardDestroyed($index)" on-card-swipe="cardSwiped($index)" class="start-card">
+          {{card.text}}
+          <span>{{card.dis}}m</span>
+        </swipe-card>
+      </swipe-cards>
+    <div class="bar bar-footer bar-assertive" ng-click="newShout()">
+      <div class="title">+</div>
+    </div>
+  </ion-content>
+</ion-view>

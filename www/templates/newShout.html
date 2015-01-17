@@ -1,0 +1,15 @@
+<ion-view view-title="Shoutie">
+  <ion-content has-bouncing="false">
+    <div id="map"></div>
+    <form ng-submit="doShout()">
+      <div class="list">
+        <label class="item item-input">
+          <input type="text" ng-model="formData.shoutText" placeholder="Write your shout here...">
+        </label>
+        <label class="item">
+          <button class="button button-block button-outline button-assertive" type="submit">Shout</button>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,34 @@
+<ion-view>
+  <ion-slide-box on-slide-changed="slideChanged(index)">
+    <ion-slide>
+      <h3>Welcome to Shoutie!</h3>
+      <h5>
+        We've worked super hard to make you happy.
+      </h5>
+      <div>
+        <img style="height: 370px; width: auto; margin-top: -2em;" src="img/whats-happening.png">
+      </div>
+    </ion-slide>
+    <ion-slide>
+      <h3>Using Awesome</h3>
+      
+      <div id="list">
+        <h5>Just three steps:</h5>
+        <ol>
+          <li>Be awesome</li>
+          <li>Stay awesome</li>
+          <li>There is no step 3</li>
+        </ol>
+      </div>
+    </ion-slide>
+    <ion-slide>
+      <h3>Any questions?</h3>
+      <p>
+        Too bad!
+      </p>
+    </ion-slide>
+  </ion-slide-box>
+  <label class="item">
+    <button style="margin-left: 20px; margin-right: 20px;" class="button button-block button-assertive" ng-click="startApp()">Start</button>
+  </label>
+</ion-view>
