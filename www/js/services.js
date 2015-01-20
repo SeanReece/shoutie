@@ -1,9 +1,9 @@
 'use strict';
 angular.module('shoutie.services', ['ngResource'])
 
-    .factory('Shouts', function ($q, $http, User, Geo) {
+    .factory('Shouts', function ($q, $http, User, Geo, Socket, $rootScope) {
         //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8080';
-        var url = 'http://localhost:8080';
+        var url = 'http://192.168.1.152:8080/api';
         var shouts = [];
         var notifyCallback;
         var readShouts = {};
@@ -29,11 +29,13 @@ angular.module('shoutie.services', ['ngResource'])
                         .success(function (data) {
                             console.log("Got "+data.length+ " shouts");
                             console.log(data);
+
                             data.forEach(function(shout){
                                if(!readShouts[shout.id]){
                                    shouts.push(shout);
                                }
                             });
+
                             q.resolve(shouts);
                         }).error(function (data, status, headers, config) {
                             q.reject(status);
@@ -67,13 +69,20 @@ angular.module('shoutie.services', ['ngResource'])
             readShout: function(shout){
                 console.log('Reading Shout: '+shout.id);
                 readShouts[shout.id] = true;
+
+                $http.post(url+'/shouts/read?apiKey=' + User.apiKey(), {id : shout.id})
+                    .success(function(data){
+                        console.log("Read Shout "+data);
+                    }).error(function(err){
+                        console.log("Error reading Shout "+err);
+                    });
             }
         }
     })
 
     .factory('User', function ($q, $http) {
         //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8080';
-        var url = 'http://localhost:8080';
+        var url = 'http://192.168.1.152:8080/api';
         var api_key;
 
         var getApiKey = function () {
@@ -208,13 +217,13 @@ angular.module('shoutie.services', ['ngResource'])
                 }
                 interval = Math.floor(seconds / 3600);
                 if (interval > 1) {
-                    return interval + " hours ago";
+                    return interval + " hrs ago";
                 }
                 interval = Math.floor(seconds / 60);
                 if (interval > 1) {
-                    return interval + " minutes ago";
+                    return interval + " min ago";
                 }
-                return Math.floor(seconds) + " seconds ago";
+                return Math.floor(seconds) + " sec ago";
             }
         }
     })
