@@ -4,6 +4,13 @@ angular.module('shoutie', ['ionic', 'shoutie.controllers'])
 .run(function($ionicPlatform, $state) {
   $ionicPlatform.ready(function() {
     console.log('READY!');
+    if (window.localStorage["apiKey"]) {
+      $state.go('app.main');
+    }
+    else{
+      $state.go('intro');
+    }
+
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
     if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -50,17 +57,7 @@ angular.module('shoutie', ['ionic', 'shoutie.controllers'])
         controller: 'NewShoutCtrl'
       }
     }
-  })
-
-  .state('app.single', {
-    url: "/playlists/:playlistId",
-    views: {
-      'menuContent': {
-        templateUrl: "templates/playlist.html",
-        controller: 'PlaylistCtrl'
-      }
-    }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/intro');
+  //$urlRouterProvider.otherwise('/intro');
 });

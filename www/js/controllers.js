@@ -72,17 +72,6 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
         };
     })
 
-    .controller('PlaylistsCtrl', function ($scope) {
-        $scope.playlists = [
-            {title: 'Reggae', id: 1},
-            {title: 'Chill', id: 2},
-            {title: 'Dubstep', id: 3},
-            {title: 'Indie', id: 4},
-            {title: 'Rap', id: 5},
-            {title: 'Cowbell', id: 6}
-        ];
-    })
-
     .controller('NewShoutCtrl', function ($scope, $stateParams, Geo, $ionicHistory, Shouts) {
         $scope.formData = {};
         Geo.getLocation().then(function (position) {
@@ -129,7 +118,7 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
         }
     })
 
-    .controller('MainCtrl', function ($scope, $state, $ionicSwipeCardDelegate, Geo, $ionicLoading, Shouts) {
+    .controller('MainCtrl', function ($scope, $state, $ionicSwipeCardDelegate, Geo, $ionicLoading, Shouts, Time) {
         $ionicLoading.show({
             template: 'Finding Location...',
             delay: 100
@@ -168,7 +157,9 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
 
         $scope.addCard = function () {
             if (shouts && shouts.length > 0) {
-                $scope.cards.push(shouts.shift());
+                var shout = shouts.shift();
+                shout.timeSince = Time.timeSince(new Date(shout.time));
+                $scope.cards.push(shout);
             }
         };
 
