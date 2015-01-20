@@ -5,12 +5,20 @@ angular.module('shoutie.services', ['ngResource'])
         //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8080';
         var url = 'http://localhost:8080';
         var shouts = [];
-        var callback;
+        var notifyCallback;
         var readShouts = {};
+
+        Socket.onNewShout(function(data){
+            shouts.push(data);
+            $rootScope.$apply(function () {
+                notifyCallback();
+            });
+            console.log('Got new Shout!');
+        });
 
         return {
             getShouts: function(cb){
-                callback = cb;
+                notifyCallback = cb;
                 var q = $q.defer();
 
                 Geo.getLocation().then(function(position) {
@@ -46,11 +54,8 @@ angular.module('shoutie.services', ['ngResource'])
 
                     $http.post(url + '/shouts?apiKey=' + User.apiKey(), shout)
                         .success(function (data) {
-                            console.log("Added shout successfully");
-                            console.log(data);
-                            shouts.push(data);
                             q.resolve(data);
-                            callback();
+                            notifyCallback();
                         }).error(function (data, status, headers, config) {
                             q.reject(status);
                         });
@@ -96,6 +101,20 @@ angular.module('shoutie.services', ['ngResource'])
                     });
 
                 return q.promise;
+            }
+        }
+    })
+
+    .factory('Socket', function(){
+        var socket = io.connect('http://192.168.1.152:8080');
+
+        return{
+            onNewShout: function (callback) {
+                socket.on('shout', function (data) {
+                    console.log('Got message!');
+                    console.log(data);
+                    callback(data);
+                });
             }
         }
     })
