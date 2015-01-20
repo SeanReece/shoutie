@@ -2,18 +2,22 @@
   <ion-content has-bouncing="false">
       <swipe-cards>
         <swipe-card on-card-swipe="cardSwiped()" class="start-card">
-          Swipe down for a new Shout
+          <div class="content">Swipe down for a new Shout</div>
         </swipe-card>
         <swipe-card class="start-card">
-          Welcome
+          <div class="content">Welcome</div>
         </swipe-card>
         <swipe-card ng-repeat="card in cards" on-destroy="cardDestroyed($index)" on-card-swipe="cardSwiped($index)" class="start-card">
-          {{card.text}}
-          <span>{{card.dis}}m</span>
+          <div class="content">{{card.text}}</div>
+          <div class="dis">
+            <span style="text-align: left; position: absolute; top: 5px; left: 5px;" ><i class="icon ion-map"></i>  {{card.dis}}m</span>
+            <span style="text-align: center; "><i class="icon ion-eye"></i>  {{card.read+1}}</span>
+            <span style="text-align: right; position: absolute; top: 5px; right: 5px;"><i class="icon ion-clock"></i>  {{card.timeSince}}</span>
+          </div>
         </swipe-card>
       </swipe-cards>
     <div class="bar bar-footer bar-assertive" ng-click="newShout()">
-      <div class="title">+</div>
+      <div class="title addButton">+</div>
     </div>
   </ion-content>
 </ion-view>

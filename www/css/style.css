@@ -79,12 +79,36 @@ swipe-card .image img {
     border: 6px solid #4CD68E;
     text-align: center;
 }
-.start-card span {
+.start-card .content {
     display: inline-block;
     line-height: 40px;
     width: 200px;
     font-size: 30px;
     vertical-align: middle;
+}
+
+.start-card .dis {
+    position: relative;
+    height: 40px;
+    width: 100%;
+    padding: 5px;
+    line-height: 30px;
+    margin-top: -50px !important;
+}
+
+.start-card .seen {
+    padding: 5px;
+    line-height: 30px;
+}
+
+.start-card .time {
+    height: 40px;
+    width: 33%;
+    text-align: right;
+    padding: 5px;
+    line-height: 30px;
+    display: inline-block;
+    position: relative;
 }
 
 .bottom{
@@ -99,6 +123,10 @@ swipe-card .image img {
 .title-center {
     font-family: 'Selfie Black' !important;
     font-size: 2.2em !important;
+}
+
+.addButton {
+    font-size: 3em !important;
 }
 
 @-webkit-keyframes bounceIn {
