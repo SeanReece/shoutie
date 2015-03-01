@@ -6,15 +6,22 @@ angular.module('shoutie.services', ['ngResource'])
         var url = 'http://192.168.1.152:8080/api';
         var shouts = [];
         var notifyCallback;
-        var readShouts = {};
+        var readShouts = [];
 
-        Socket.onNewShout(function(data){
-            shouts.push(data);
-            $rootScope.$apply(function () {
-                notifyCallback();
+        if(typeof window.localStorage["readShouts"] !== 'undefined'){
+            readShouts = angular.fromJson(window.localStorage["readShouts"]);
+            console.log('REad Shouts from window: '+readShouts)
+        }
+
+        function listenForShouts() {
+            Socket.onNewShout(function (data) {
+                shouts.push(data);
+                $rootScope.$apply(function () {
+                    notifyCallback();
+                });
+                console.log('Got new Shout!');
             });
-            console.log('Got new Shout!');
-        });
+        }
 
         return {
             getShouts: function(cb){
@@ -28,15 +35,17 @@ angular.module('shoutie.services', ['ngResource'])
                     $http.get(url + '/shouts?apiKey=' + User.apiKey() + '&lng=' + lng + '&lat=' + lat)
                         .success(function (data) {
                             console.log("Got "+data.length+ " shouts");
-                            console.log(data);
 
                             data.forEach(function(shout){
-                               if(!readShouts[shout.id]){
+                               if(readShouts.indexOf(shout.id) < 0){
                                    shouts.push(shout);
                                }
                             });
-
+                            console.log(shouts.length+ " unread");
                             q.resolve(shouts);
+
+                            listenForShouts();
+
                         }).error(function (data, status, headers, config) {
                             q.reject(status);
                         });
@@ -67,8 +76,8 @@ angular.module('shoutie.services', ['ngResource'])
                 return q.promise;
             },
             readShout: function(shout){
-                console.log('Reading Shout: '+shout.id);
-                readShouts[shout.id] = true;
+                readShouts.push(shout.id);
+                window.localStorage["readShouts"] = angular.toJson(readShouts);
 
                 $http.post(url+'/shouts/read?apiKey=' + User.apiKey(), {id : shout.id})
                     .success(function(data){
