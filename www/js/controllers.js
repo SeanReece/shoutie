@@ -165,6 +165,11 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
                 var shout = shouts.shift();
                 shout.timeSince = Time.timeSince(new Date(shout.time));
                 $scope.cards.push(shout);
+
+                //Get the updated views
+                Shouts.update(shout).then(function(newShout){
+                    shout['read'] = newShout['read'];
+                });
             }
             else{
                 clearInterval(timeInterval);
