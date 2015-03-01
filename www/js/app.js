@@ -23,7 +23,11 @@ angular.module('shoutie', ['ionic', 'shoutie.controllers'])
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+  $ionicConfigProvider.navBar.alignTitle("center");
+  $ionicConfigProvider.backButton.text('');
+  $ionicConfigProvider.backButton.previousTitleText(false);
+
   $stateProvider
 
   .state('intro', {
