@@ -16,6 +16,9 @@
           </div>
         </swipe-card>
       </swipe-cards>
+      <div class="no-cards">
+        <span class="content" ng-if="noShouts">Uh oh! Looks like it's quiet around here...</span>
+      </div>
     <div class="bar bar-footer bar-assertive" ng-click="newShout()">
       <div class="title addButton">+</div>
     </div>

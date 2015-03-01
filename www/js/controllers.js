@@ -120,6 +120,8 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
 
     .controller('MainCtrl', function ($scope, $state, $ionicSwipeCardDelegate, Geo, $ionicLoading, Shouts, Time) {
         var timeInterval;
+        $scope.noShouts = false;
+
         $ionicLoading.show({
             template: 'Finding Location...',
             delay: 100
@@ -159,6 +161,7 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
         $scope.addCard = function () {
             if (shouts && shouts.length > 0) {
                 startTimer();
+                $scope.noShouts = false;
                 var shout = shouts.shift();
                 shout.timeSince = Time.timeSince(new Date(shout.time));
                 $scope.cards.push(shout);
@@ -166,6 +169,7 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
             else{
                 clearInterval(timeInterval);
                 timeInterval = false;
+                $scope.noShouts = true;
             }
         };
 
