@@ -75,6 +75,21 @@ angular.module('shoutie.services', ['ngResource'])
                 });
                 return q.promise;
             },
+            update: function(shout){
+                var q = $q.defer();
+
+                $http.get(url + '/shouts/'+shout.id+'?apiKey=' + User.apiKey())
+                    .success(function (data) {
+                        console.log("Got updated shout for: "+shout.text);
+                        var newShout = data;
+                        newShout.dis = shout.dis;
+                        q.resolve(newShout);
+                        notifyCallback();
+                    }).error(function (data, status, headers, config) {
+                        q.reject(status);
+                    });
+                return q.promise;
+            },
             readShout: function(shout){
                 readShouts.push(shout.id);
                 window.localStorage["readShouts"] = angular.toJson(readShouts);
