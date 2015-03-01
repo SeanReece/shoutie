@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Lato:300,400);
+@import url(http://fonts.googleapis.com/css?family=Lato:300|Lobster);
 * {
     font-family: 'Lato', sans-serif !important;
     -webkit-font-smoothing: antialiased;
@@ -121,7 +121,7 @@ swipe-card .image img {
 }
 
 .title-center {
-    font-family: 'Selfie Black' !important;
+    font-family: 'Lobster', cursive !important;
     font-size: 2.2em !important;
 }
 
