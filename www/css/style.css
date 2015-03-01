@@ -32,6 +32,21 @@
     color: #eee;
 }
 
+.no-cards {
+    height: 100%;
+    color: grey;
+    line-height: 300px;
+    word-wrap: break-word;
+    text-align: center;
+}
+.no-cards .content {
+    display: inline-block;
+    line-height: 40px;
+    width: 200px;
+    font-size: 30px;
+    vertical-align: middle;
+}
+
 .swipe-cards {
     position: fixed;
 }
