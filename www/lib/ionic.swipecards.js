@@ -64,7 +64,7 @@
 
             // Move each card 5 pixels down to give a nice stacking effect (max of 3 stacked)
             nextCard.setPopInDuration(this.cardPopInDuration);
-            nextCard.setZIndex(this.cards.length);
+            nextCard.setZIndex(this.cards.length + 100);
         },
         /**
          * Pop a card from the stack

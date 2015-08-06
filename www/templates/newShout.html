@@ -1,13 +1,14 @@
-<ion-view view-title="Shoutie">
+<ion-view view-title="New Shoutie">
   <ion-content has-bouncing="false">
     <div id="map"></div>
     <form ng-submit="doShout()">
       <div class="list">
         <label class="item item-input">
-          <input type="text" ng-model="formData.shoutText" placeholder="Write your shout here...">
+          <input type="text" ng-model="formData.shoutText" placeholder="Write your shout here..." maxLength="60">
         </label>
         <label class="item">
-          <button class="button button-block button-outline button-assertive" type="submit">Shout</button>
+          <div class="shoutLength">{{formData.shoutText.length}}/60</div>
+          <button class="button button-block button-outline button-assertive title-center" type="submit">Shout!</button>
         </label>
       </div>
     </form>

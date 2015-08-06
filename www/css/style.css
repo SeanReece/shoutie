@@ -1,7 +1,55 @@
-@import url(http://fonts.googleapis.com/css?family=Lato:300|Lobster);
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/Lato/Lato-Light.ttf')  format('truetype');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Lobster';
+  src: url('../fonts/Lobster/Lobster-Regular.ttf')  format('truetype');
+}
+
 * {
     font-family: 'Lato', sans-serif !important;
     -webkit-font-smoothing: antialiased;
+}
+
+.slider {
+    height: 100%;
+    position: relative;
+
+}
+
+.intro-slide1 {
+    background: url("../img/yell1.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+}
+
+.intro-slide2 {
+    background: url("../img/yell3.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+}
+
+.intro-slide3 {
+    background: url("../img/yell2.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+}
+
+.desaturate { -webkit-filter: grayscale(60%); filter: grayscale(60%); }
+
+h3{
+    font-family: 'Lobster', cursive !important;
+}
+
+h5{
+    font-family: 'Lobster', cursive !important;
+    font-size: 2.5em !important;
 }
 
 
@@ -44,11 +92,15 @@
     line-height: 40px;
     width: 200px;
     font-size: 30px;
-    vertical-align: middle;
+    position: fixed; /* or absolute */
+    top: 50%;
+    left: 50%; 
+    margin-top: -60px;
+    margin-left: -100px;
 }
 
 .swipe-cards {
-    position: fixed;
+    position: relative;
 }
 
 swipe-card {
@@ -63,7 +115,6 @@ swipe-card {
     margin-top: -150px;
     box-sizing: border-box;
     background-color: rgb(255,255,255);
-    border-radius: 4px;
     overflow: hidden;
     -webkit-animation-fill-mode: forwards;
 }
@@ -91,8 +142,9 @@ swipe-card .image img {
     background-color: #30BD8A;
     line-height: 300px;
     word-wrap: break-word;
-    border: 6px solid #4CD68E;
+    border-radius: 10px;
     text-align: center;
+    z-index: 100;
 }
 .start-card .content {
     display: inline-block;
@@ -105,8 +157,9 @@ swipe-card .image img {
 .start-card .dis {
     position: relative;
     height: 40px;
-    width: 100%;
+    width: calc(100% - 10px);
     padding: 5px;
+    margin-left: 5px;
     line-height: 30px;
     margin-top: -50px !important;
 }
@@ -144,6 +197,53 @@ swipe-card .image img {
     font-size: 3em !important;
 }
 
+.shoutLength {
+    color: grey;
+    margin: 0px;
+    margin-top: -10px;
+    padding: 0px;
+    text-align: center;
+}
+
+.shout-item {
+    position: relative;
+    border: none;
+    padding: 5px 15px 5px 20px !important;
+}
+
+.shout-item .item-content {
+    padding: 0px !important;
+}
+
+.shout-item .color-box {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border-radius: 3px;
+    position: absolute;
+    left: 5px;
+    top: 7px;
+    background-color: #FF850A;
+}
+
+.shout-item .color-box .mine {
+    border: 2px solid red;
+}
+
+.shout-item .shout-content {
+    margin-left: 8px;
+    width: 100%;
+}
+
+.shout-text {
+  display: inline-block;
+  width: calc(100% - 40px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+}
+
 @-webkit-keyframes bounceIn {
     0% {
         -webkit-transform: scale(0,0);
@@ -159,8 +259,69 @@ swipe-card .image img {
 swipe-card.pop-in-start {
     -webkit-transform: scale(0,0);
 }
-swipe-card.pop-in {
+.pop-in {
     -webkit-animation: bounceIn 0.4s ease-out;
 }
 
+.fade-out.ng-leave {
+    -webkit-animation: fadeOutLeft 1s;
+    -moz-animation: fadeOutLeft 1s;
+    -ms-animation: fadeOutLeft 1s;
+    animation: fadeOutLeft 1s;
+}
+
+.bar.bar-loading {
+  display: block;
+  height: 24px;
+  
+  /* starts right below a normal header */
+  top: 44px;
+  
+  /* make the text centered vertically and horizontally */
+  text-align: center;
+  padding: 0;
+  line-height: 24px;
+
+  /* transition 'sliding down' (check below)*/
+  -webkit-transition: 200ms all;
+}
+
+.platform-ios.platform-cordova:not(.fullscreen) .bar-loading {
+  top: 64px; 
+}
+
+
+/* 
+ * make the content's top changes animate.
+ * might not always look good, but looks
+ * good when our loader is added & removed
+ */
+.has-header {
+  -webkit-transition: 200ms top;
+}
+.has-header.has-loading {
+  /* 44px (header) + 24px */
+  top: 68px;
+}
+
+.platform-ios.platform-cordova:not(.fullscreen) .has-header.has-loading {
+  top: 88px; 
+}
+
+/* make loading bar slide up/down */
+.bar-loading.ng-enter,
+.bar-loading.ng-leave.ng-leave-active {
+  height: 0;
+  border-width: 0px;
+}
+.bar-loading.ng-enter.ng-enter-active,
+.bar-loading.ng-leave {
+  height: 24px;
+  border-width: 1px;
+}
+
+.time-hint {
+    line-height: 10px;
+    font-size: .7em;
+}
 

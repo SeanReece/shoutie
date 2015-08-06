@@ -1,0 +1,10 @@
+{
+    "jscodehints.detectedExclusions": [
+        "/Users/sean/Sites/shoutie/platforms/ios/build/device/Soutie.app/www/lib/ionic/js/angular-ui/angular-ui-router.min.js",
+        "/Users/sean/Sites/shoutie/platforms/ios/build/emulator/Shoutie.app/www/lib/ionic/js/ionic-angular.js",
+        "/Users/sean/Sites/shoutie/platforms/ios/build/emulator/Shoutie.app/www/lib/ionic/js/ionic-angular.min.js",
+        "/Users/sean/Sites/shoutie/platforms/ios/build/emulator/Shoutie.app/www/lib/ionic/js/angular-ui/angular-ui-router.min.js",
+        "/Users/sean/Sites/shoutie/platforms/ios/build/emulator/Shoutie.app/www/lib/ionic/js/angular-ui/angular-ui-router.js",
+        "/Users/sean/Sites/shoutie/platforms/ios/build/emulator/Shoutie.app/www/lib/ionic/js/ionic.bundle.min.js"
+    ]
+}

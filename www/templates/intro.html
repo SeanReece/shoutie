@@ -1,15 +1,9 @@
 <ion-view>
-  <ion-slide-box on-slide-changed="slideChanged(index)">
-    <ion-slide>
-      <h3>Welcome to Shoutie!</h3>
-      <h5>
-        We've worked super hard to make you happy.
-      </h5>
-      <div>
-        <img style="height: 370px; width: auto; margin-top: -2em;" src="img/whats-happening.png">
-      </div>
+  <ion-slide-box on-slide-changed="slideChanged(index)" >
+    <ion-slide class="intro-slide1" >
+      <h5>Welcome to Shoutie!</h5>
     </ion-slide>
-    <ion-slide>
+    <ion-slide  class="intro-slide2">
       <h3>Using Awesome</h3>
       
       <div id="list">
@@ -21,14 +15,14 @@
         </ol>
       </div>
     </ion-slide>
-    <ion-slide>
+    <ion-slide  class="intro-slide3">
       <h3>Any questions?</h3>
       <p>
         Too bad!
       </p>
     </ion-slide>
   </ion-slide-box>
-  <label class="item">
-    <button style="margin-left: 20px; margin-right: 20px;" class="button button-block button-assertive" ng-click="startApp()">Start</button>
-  </label>
+  <div class="bar bar-footer bar-assertive" ng-click="startApp()">
+    <div class="title title-center addButton">Start</div>
+  </div>
 </ion-view>

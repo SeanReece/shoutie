@@ -1,9 +1,19 @@
 'use strict';
+
 angular.module('shoutie.services', ['ngResource'])
 
-    .factory('Shouts', function ($q, $http, User, Geo, Socket, $rootScope) {
-        //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8080';
-        var url = 'http://192.168.1.152:8080/api';
+    .factory('Constants', function(){
+        var url = 'http://45.55.192.51:8081/api';
+        //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8081/api';
+        //var url = 'http://192.168.1.152:8081/api';
+        //var url = 'http://localhost:8081/api';
+    
+        return{
+            getUrl: function() { return url; }
+        };
+    })
+
+    .factory('Shouts', function ($q, $http, User, Geo, Socket, $rootScope, Constants) {
         var shouts = [];
         var notifyCallback;
         var readShouts = [];
@@ -14,12 +24,19 @@ angular.module('shoutie.services', ['ngResource'])
         }
 
         function listenForShouts() {
-            Socket.onNewShout(function (data) {
-                shouts.push(data);
-                $rootScope.$apply(function () {
-                    notifyCallback();
+            Socket.open().then(function(){
+                Socket.onNewShout(function (data) {
+                    shouts.push(data);
+                    $rootScope.$apply(function () {
+                        notifyCallback(data);
+                    });
+                    console.log('Got new Shout!');
                 });
-                console.log('Got new Shout!');
+                Socket.onListenersChange(function (data) {
+                    $rootScope.$apply(function () {
+                        notifyCallback(data);
+                    });
+                });
             });
         }
 
@@ -32,7 +49,7 @@ angular.module('shoutie.services', ['ngResource'])
                     var lat = position.coords.latitude;
                     var lng = position.coords.longitude;
 
-                    $http.get(url + '/shouts?apiKey=' + User.apiKey() + '&lng=' + lng + '&lat=' + lat)
+                    $http.get(Constants.getUrl() + '/shouts?apiKey=' + User.apiKey() + '&lng=' + lng + '&lat=' + lat)
                         .success(function (data) {
                             console.log("Got "+data.length+ " shouts");
 
@@ -47,6 +64,11 @@ angular.module('shoutie.services', ['ngResource'])
                             listenForShouts();
 
                         }).error(function (data, status, headers, config) {
+                            console.log(status);
+                            if(status === 401){
+                                console.log('Got 401...');
+                                User.logout();
+                            }
                             q.reject(status);
                         });
                 }, function(err){
@@ -63,10 +85,10 @@ angular.module('shoutie.services', ['ngResource'])
                         lng: position.coords.longitude
                     };
 
-                    $http.post(url + '/shouts?apiKey=' + User.apiKey(), shout)
+                    $http.post(Constants.getUrl() + '/shouts?apiKey=' + User.apiKey(), shout)
                         .success(function (data) {
                             q.resolve(data);
-                            notifyCallback();
+                            //notifyCallback();
                         }).error(function (data, status, headers, config) {
                             q.reject(status);
                         });
@@ -78,35 +100,86 @@ angular.module('shoutie.services', ['ngResource'])
             update: function(shout){
                 var q = $q.defer();
 
-                $http.get(url + '/shouts/'+shout.id+'?apiKey=' + User.apiKey())
+                $http.get(Constants.getUrl() + '/shouts/'+shout.id+'?apiKey=' + User.apiKey())
                     .success(function (data) {
                         console.log("Got updated shout for: "+shout.text);
                         var newShout = data;
                         newShout.dis = shout.dis;
                         q.resolve(newShout);
-                        notifyCallback();
+                        notifyCallback(newShout);
                     }).error(function (data, status, headers, config) {
                         q.reject(status);
                     });
                 return q.promise;
             },
             readShout: function(shout){
+                if(shout.local){
+                    return;
+                }
                 readShouts.push(shout.id);
                 window.localStorage["readShouts"] = angular.toJson(readShouts);
 
-                $http.post(url+'/shouts/read?apiKey=' + User.apiKey(), {id : shout.id})
+                $http.post(Constants.getUrl()+'/shouts/read?apiKey=' + User.apiKey(), {id : shout.id})
                     .success(function(data){
                         console.log("Read Shout "+data);
+                        shout.read = true;
                     }).error(function(err){
                         console.log("Error reading Shout "+err);
                     });
-            }
+            },
+            reshout: function(shout){
+                var q = $q.defer();
+                Geo.getLocation().then(function(position){
+                    var post = {
+                        id: shout.id,
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    $http.post(Constants.getUrl() + '/shouts/reshout?apiKey=' + User.apiKey(), post)
+                        .success(function (data) {
+                            console.log(data);
+                            q.resolve(data);
+                        }).error(function (data, status, headers, config) {
+                            q.reject(status);
+                            console.log(status);
+                        });
+                }, function(err){
+                    q.reject(err);
+                });
+                return q.promise;
+            },
+            changeLocation: function(){
+
+                Geo.getLocation().then(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+
+                    $http.get(Constants.getUrl() + '/shouts?apiKey=' + User.apiKey() + '&lng=' + lng + '&lat=' + lat)
+                        .success(function (data) {
+                            console.log("Got "+data.length+ " shouts");
+
+                            data.forEach(function(shout){
+                                if(readShouts.indexOf(shout.id) < 0){
+                                    shouts.push(shout);
+                                }
+                            });
+                            console.log(shouts.length+ " unread");
+                            notifyCallback(null, true);
+                        }).error(function (data, status, headers, config) {
+                            if(status === 401){
+                                console.log('Got 401...');
+                                User.logout();
+                            }
+                        });
+                }, function(err){
+
+                });
+            },
         }
     })
 
-    .factory('User', function ($q, $http) {
-        //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8080';
-        var url = 'http://192.168.1.152:8080/api';
+    .factory('User', function ($q, $http, $state, Constants) {
         var api_key;
 
         var getApiKey = function () {
@@ -123,7 +196,7 @@ angular.module('shoutie.services', ['ngResource'])
                 var q = $q.defer();
 
                 console.log('Post Register');
-                $http.post(url + '/users')
+                $http.post(Constants.getUrl() + '/users')
                     .success(function (data) {
                         console.log(data);
                         api_key = data.apiKey;
@@ -134,19 +207,50 @@ angular.module('shoutie.services', ['ngResource'])
                     });
 
                 return q.promise;
+            },
+            logout: function(){
+                window.localStorage.clear();
+                $state.go('intro');
             }
         }
     })
 
-    .factory('Socket', function(){
-        var socket = io.connect('http://192.168.1.152:8080');
+    .factory('Socket', function(User, Geo, $q, Constants){
+        var socket;
+        var listeners = 0;
 
         return{
+            open: function () {
+                var q = $q.defer();
+                Geo.getLocation().then(function(position) {
+                    socket = io.connect('http://45.55.192.51:8081', {query: "apiKey="+User.apiKey()+"&lat="+position.coords.latitude+"&lng="+position.coords.longitude});
+                    q.resolve();
+                }, function(error){
+                    q.reject();
+                });
+                return q.promise;
+            },
             onNewShout: function (callback) {
                 socket.on('shout', function (data) {
                     console.log('Got message!');
                     console.log(data);
                     callback(data);
+                });
+            },
+            onListenersChange: function (callback) {
+                socket.on('listener', function (data) {
+                    console.log('Got Listener Change!');
+                    console.log(data);
+                    if(data.count){
+                        listeners = data.count;
+                    }
+                    else if(data.add){
+                        listeners++;
+                    }
+                    else if(data.remove){
+                        listeners--;
+                    }
+                    callback(listeners);
                 });
             }
         }
@@ -155,6 +259,26 @@ angular.module('shoutie.services', ['ngResource'])
     .factory('Geo', function ($q) {
         var cachedposition;
         var cachedreverse;
+
+        Number.prototype.toRad = function() {
+            return this * Math.PI / 180;
+        }
+
+        var calcDistance = function(lat1, lng1, lat2, lng2){
+            console.log('Calculating Distance');
+            var R = 6371000; // meters
+
+            var x1 = lat2-lat1;
+            var dLat = x1.toRad();
+            var x2 = lng2-lng1;
+            var dLon = x2.toRad();
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
         return {
             reverseGeocode: function (lat, lng) {
                 var q = $q.defer();
@@ -203,21 +327,35 @@ angular.module('shoutie.services', ['ngResource'])
                 var q = $q.defer();
 
                 if (!cachedposition) {
-                    navigator.geolocation.getCurrentPosition(function (position) {
-                        cachedposition = position;
-                        console.log(position);
+                    console.log("Attempting to get new position");
+                    navigator.geolocation.watchPosition(function (position) {
+                        var distance = 0;
+                        if(cachedposition) {
+                            distance = calcDistance(cachedposition.coords.latitude, cachedposition.coords.longitude,
+                                position.coords.latitude, position.coords.longitude);
+                            console.log("Position update!!! Changed " + distance + "m");
+                        }
+                        if(distance > 10 || !cachedposition) {
+                            cachedposition = position;
+                            console.log("new position");
+                            console.log(angular.toJson(position));
+                        }
+
                         q.resolve(cachedposition);
                     }, function (error) {
-                        console.log(error);
+                        console.log("position error");
+                        console.log(angular.toJson(error));
                         q.reject(error);
                     });
                 }
                 else {
+                    console.log('cached position');
                     q.resolve(cachedposition);
                 }
 
                 return q.promise;
-            }
+            },
+            getDistance: calcDistance
         };
     })
 

@@ -1,26 +1,43 @@
 <ion-view view-title="Shoutie">
-  <ion-content has-bouncing="false">
-      <swipe-cards>
-        <swipe-card on-card-swipe="cardSwiped()" class="start-card">
-          <div class="content">Swipe down for a new Shout</div>
-        </swipe-card>
-        <swipe-card class="start-card">
-          <div class="content">Welcome</div>
-        </swipe-card>
-        <swipe-card ng-repeat="card in cards" on-destroy="cardDestroyed($index)" on-card-swipe="cardSwiped($index)" class="start-card">
+  <div class="bar bar-loading bar-positive" ng-if="listeners == 1">
+    There is {{listeners}} person listening
+  </div>
+  <div class="bar bar-loading bar-positive" ng-if="listeners > 1">
+    There are {{listeners}} people listening
+  </div>
+  <ion-content has-bouncing="false" ng-class="{'has-loading': listeners > 0}">
+    <swipe-cards>
+        <swipe-card ng-repeat="card in cards" on-destroy="cardDestroyed($index)" on-card-swipe="cardSwiped($index)" class="start-card fade-out" ng-style="card.color">
           <div class="content">{{card.text}}</div>
           <div class="dis">
             <span style="text-align: left; position: absolute; top: 5px; left: 5px;" ><i class="icon ion-map"></i>  {{card.dis}}m</span>
-            <span style="text-align: center; "><i class="icon ion-eye"></i>  {{card.read+1}}</span>
+            <span style="text-align: center; "><i class="icon ion-eye"></i>  {{card.views + 1}}</span>
             <span style="text-align: right; position: absolute; top: 5px; right: 5px;"><i class="icon ion-clock"></i>  {{card.timeSince}}</span>
           </div>
         </swipe-card>
       </swipe-cards>
-      <div class="no-cards">
-        <span class="content" ng-if="noShouts">Uh oh! Looks like it's quiet around here...</span>
+    <ion-list>
+      <ion-item ng-repeat="item in items" class="shout-item pop-in item-remove-animate" ng-click="openCard(item)">
+        <div class="color-box mine" ng-style="item.color"></div>
+        <div class="shout-content">
+          <div>
+            <div class="shout-text">{{item.text}}</div>
+            <span class="item-note">
+              <div easypiechart class="chart" options="item.options" percent="item.percent">
+                <span class="percent" ng-bind="item.timeLeft"></span>
+              </div>
+            </span>
+            <div class="time-hint">{{item.timeSince}}</div>
+          </div>
+        </div>
+          
+      </ion-item>
+    </ion-list>
+      <div class="no-cards" ng-if="noShouts">
+        <span class="content">Uh oh! Looks like it's quiet around here...</span>
       </div>
-    <div class="bar bar-footer bar-assertive" ng-click="newShout()">
-      <div class="title addButton">+</div>
-    </div>
   </ion-content>
+  <ion-footer-bar class="bar-assertive" ng-click="newShout()">
+    <div class="title addButton">+</div>
+  </ion-footer-bar>
 </ion-view>

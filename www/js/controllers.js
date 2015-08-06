@@ -1,4 +1,4 @@
-angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.cards'])
+angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.cards', 'easypiechart'])
 
     .controller('IntroCtrl', function ($scope, $state, $ionicSlideBoxDelegate, $ionicLoading, User) {
 
@@ -28,7 +28,7 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
         };
     })
 
-    .controller('AppCtrl', function ($scope, $ionicModal, $timeout, Geo) {
+    .controller('AppCtrl', function ($scope, $ionicModal, $timeout, Geo, User) {
         // Form data for the login modal
         $scope.loginData = {};
 
@@ -70,13 +70,20 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
                 $scope.closeLogin();
             }, 1000);
         };
+
+        $scope.logout = function(){
+            User.logout();
+        }
     })
 
     .controller('NewShoutCtrl', function ($scope, $stateParams, Geo, $ionicHistory, Shouts) {
         $scope.formData = {};
+        $scope.formData.shoutText = "";
+        var latLng;
+
         Geo.getLocation().then(function (position) {
 
-            var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             $scope.map.setCenter(latLng);
 
             var shoutRadius = {
@@ -120,55 +127,127 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
 
     .controller('MainCtrl', function ($scope, $state, $ionicSwipeCardDelegate, Geo, $ionicLoading, Shouts, Time) {
         var timeInterval;
-        $scope.noShouts = false;
-
-        $ionicLoading.show({
-            template: 'Finding Location...',
-            delay: 100
-        });
-
-        var shouts;
+        var firstTime = false;
+        $scope.items = [];
         $scope.cards = [];
+    
+        startTimer();
+    
+        if(!window.localStorage['turorialDone']){
+            firstTime = true;
+            
+            addShout({
+                text:"Hey",
+                admin:true,
+                local:true,
+                time:new Date()
+            });
+            
+            setTimeout(function(){
+                addShout({
+                    text:"Shoutie lets u see what people are talking about around you",
+                    admin:true,
+                    local:true,
+                    time:new Date()
+                });
+                
+                setTimeout(function(){
+                    addShout({
+                        text:"Click me to see more",
+                        admin:true,
+                        local:true,
+                        time:new Date()
+                    });
+                },2000);
+            },2000);
+        }
+        else{
+            $ionicLoading.show({
+                template: 'Finding Location...',
+                delay: 100
+            });
+        }
 
         Geo.getLocation().then(function (position) {
-            $ionicLoading.show({
-                template: 'Listening...'
-            });
+            $ionicLoading.hide();
 
-            Shouts.getShouts(function(){
-                if($scope.cards.length === 0){
-                    $scope.addCard();
+            Shouts.getShouts(function(data,reset){
+                //Callback that will be called on new shout
+                if(reset){
+                    console.log('RESET CARDS');
+                }
+                if(isFinite(data)){
+                    $scope.listeners = data;
+                }
+                else{
+                    addShout(data);
                 }
             }).then(function (data) {
+                if(data.length === 0 && $scope.items.length === 0){
+                    $scope.noShouts = true;   
+                }
+                else if(data.length > 0){
+                    data.forEach(function(shout) {
+                        addShout(shout);
+                    });
+                    console.log("Cards: "+$scope.cards);
+                }
+                
+            }, function(status){
                 $ionicLoading.hide();
-                shouts = data;
-                console.log($scope.cards);
             });
         });
+        
+        function addShout(shout){
+            $scope.noShouts = false; 
+            $scope.items.push(shout);
+            $scope.noShouts = false;
+            shout.timeSince = Time.timeSince(new Date(shout.time));
+            shout.timeLeft = 60;
+            shout.percent = 100;
+            shout.options = { animate:false, scaleColor:false, lineWidth:2, lineCap:'butt', size: 28 };
+            var color = window.randomColor({luminosity: 'bright'}); 
+            if(shout.admin){
+                shout.color = {'background-color': '#ef473a'}   
+            }
+            if(!shout.color){
+                shout.color = {'background-color':color};
+            }
+        }
+        
+        $scope.removeShout = function(shout){
+            $scope.items.splice($scope.items.indexOf(shout),1);
+            if($scope.cards.indexOf(shout) >= 0)
+                $scope.cards.splice($scope.cards.indexOf(shout),1);
 
-
-        //Array.prototype.slice.call(cardTypes, 0, 0);
-
-        $scope.cardSwiped = function (index) {
-            $scope.addCard();
-        };
-
-        $scope.cardDestroyed = function (index) {
-            Shouts.readShout($scope.cards[index]);
-            $scope.cards.splice(index, 1);
-        };
+            if(!shout.read){
+                Shouts.readShout(shout);
+            }
+            if($scope.items.length === 0){
+                $scope.noShouts = true;
+            }
+        }
+        
+        $scope.openCard = function(item){
+            $scope.cards.splice(0, 1);
+            $scope.cards.push(item);
+            if(!item.read){
+                Shouts.readShout(item);
+            }
+        }
 
         $scope.addCard = function () {
-            if (shouts && shouts.length > 0) {
-                startTimer();
+            console.log('Add Card.');
+            if ($scope.items) {
                 $scope.noShouts = false;
-                var shout = shouts.shift();
+                var shout = $scope.items.shift();
+                startTimer(shout);
                 shout.timeSince = Time.timeSince(new Date(shout.time));
                 $scope.cards.push(shout);
 
                 //Get the updated views
                 Shouts.update(shout).then(function(newShout){
-                    shout['read'] = newShout['read'];
+                    shout['views'] = newShout['views'];
                 });
             }
             else{
@@ -181,15 +260,31 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
         function startTimer(){
             if(!timeInterval){
                 timeInterval = setInterval(function() {
-                    $scope.$apply(function () {
-                            $scope.cards[0].timeSince = Time.timeSince(new Date($scope.cards[0].time));
+                    $scope.items.forEach(function(shout){
+                        $scope.$apply(function () {
+                            shout.timeSince = Time.timeSince(new Date(shout.time));
+                            shout.timeLeft--;
+                            shout.percent = shout.timeLeft/60 * 100;
+                            //Remove after being shown for 60 seconds
+                            if(shout.timeLeft <= 0){
+                                $scope.removeShout(shout);
+                            }
                         });
+                    });
                 }, 1000);
             }
         }
 
         $scope.newShout = function () {
             $state.go('app.newShout');
+        }
+        
+        $scope.reshout = function () {
+            if ($scope.cards.length > 0){
+                Shouts.reshout($scope.cards[0]).then(function(data){
+
+                });
+            }
         }
     })
 
