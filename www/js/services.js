@@ -3,13 +3,16 @@
 angular.module('shoutie.services', ['ngResource'])
 
     .factory('Constants', function(){
-        var url = 'http://45.55.192.51:8081/api';
-        //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8081/api';
-        //var url = 'http://192.168.1.152:8081/api';
-        //var url = 'http://localhost:8081/api';
-    
+        //var url = 'http://45.55.192.51:8081';
+        //var url = 'http://ec2-54-69-118-116.us-west-2.compute.amazonaws.com:8081';
+        //var url = 'http://192.168.1.152:8081';
+        var url = 'http://localhost:8080';
+        //var url = 'http://54.209.191.176:80';
+        var apiPath = '/api';
+
         return{
-            getUrl: function() { return url; }
+            getUrl: function() { return url+apiPath; },
+            getRootUrl: function() { return url; }
         };
     })
 
@@ -223,7 +226,7 @@ angular.module('shoutie.services', ['ngResource'])
             open: function () {
                 var q = $q.defer();
                 Geo.getLocation().then(function(position) {
-                    socket = io.connect('http://45.55.192.51:8081', {query: "apiKey="+User.apiKey()+"&lat="+position.coords.latitude+"&lng="+position.coords.longitude});
+                    socket = io.connect(Constants.getRootUrl(), {query: "apiKey="+User.apiKey()+"&lat="+position.coords.latitude+"&lng="+position.coords.longitude});
                     q.resolve();
                 }, function(error){
                     q.reject();

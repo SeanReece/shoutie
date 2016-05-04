@@ -1,6 +1,6 @@
 angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.cards', 'easypiechart'])
 
-    .controller('IntroCtrl', function ($scope, $state, $ionicSlideBoxDelegate, $ionicLoading, User) {
+    .controller('IntroCtrl', function ($scope, $state, $ionicSlideBoxDelegate, $ionicLoading, User, $ionicPopup) {
 
         if (window.localStorage["apiKey"]) {
             $state.go('app.main');
@@ -17,7 +17,10 @@ angular.module('shoutie.controllers', ['shoutie.services', 'ionic.contrib.ui.car
                 $state.go('app.main');
             }, function (error) {
                 $ionicLoading.hide();
-                alert('Something bad happened. Please try again later.');
+                $ionicPopup.alert({
+                 title: 'Uh Oh!',
+                 template: 'Something bad happened. Please try again later. Code: ' + error
+               });
             });
 
         };
